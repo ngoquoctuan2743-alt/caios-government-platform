@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-console
+  namespace: internal-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-console
+  template:
+    metadata:
+      labels:
+        app: admin-console
+    spec:
+      containers:
+        - name: app
+          image: citizen-ai-case-manager:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-console
+  namespace: internal-admin
+spec:
+  selector:
+    app: admin-console
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+# Admin/internal handles rule-set and legal-source authoring for citizen ID
+# data workflows -- deny all ingress by default, allow only from an
+# operator-managed bastion/VPN ingress controller.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: admin-console-default-deny
+  namespace: internal-admin
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              network/allow-internal-admin: "true"

@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// RBAC
+// ---------------------------------------------------------------------------
+
+enum Role {
+  CITIZEN
+  OFFICER
+  ADMIN
+  SYSTEM
+}
+
+/// Authenticated account. Citizens, officers and admins are all Users
+/// distinguished by role; the AI agent uses a service-level SYSTEM identity
+/// scoped to the tool calls it's permitted to make (see PRD §6.1).
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  jurisdiction String? // officer scoping, e.g. province/district code
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  citizen Citizen?
+
+  @@index([role])
+}
+
+// ---------------------------------------------------------------------------
+// Core case management (PRD §5)
+// ---------------------------------------------------------------------------
+
+model Citizen {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nationalIdHash String   @unique // hashed, not raw ID number
+  createdAt      DateTime @default(now())
+
+  cases Case[]
+}
+
+model Procedure {
+  id             String        @id @default(cuid())
+  code           String        @unique // e.g. "ID_CARD_RENEWAL"
+  name           String
+  ruleSetVersion String // ties to Rule Engine version
+  legalSources   LegalSource[]
+  cases          Case[]
+}
+
+enum CaseStage {
+  INTAKE
+  ELIGIBILITY
+  CHECKLIST
+  VERIFICATION
+  GAP_DETECTION
+  SUBMISSION
+  TRACKING
+}
+
+model Case {
+  id          String    @id @default(cuid())
+  citizenId   String
+  citizen     Citizen   @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  procedureId String
+  procedure   Procedure @relation(fields: [procedureId], references: [id])
+  stage       CaseStage @default(INTAKE)
+  eligibility Json? // structured answers
+
+  checklist   ChecklistItem[]
+  auditEvents AuditEvent[]
+  escalations Escalation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([citizenId])
+  @@index([procedureId])
+  @@index([stage])
+}
+
+enum DocStatus {
+  REQUIRED
+  UPLOADED
+  VERIFIED
+  DEFECTIVE
+  MISSING
+}
+
+model ChecklistItem {
+  id           String    @id @default(cuid())
+  caseId       String
+  case         Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  documentType String
+  status       DocStatus @default(REQUIRED)
+  ocrExtract   Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([caseId])
+}
+
+/// Traceable pointer into the Vector DB backing RAG/Citation Engine (PRD §7).
+model LegalSource {
+  id            String      @id @default(cuid())
+  lawName       String
+  article       String
+  effectiveDate DateTime
+  lastUpdated   DateTime
+  vectorDocId   String      @unique
+  procedures    Procedure[]
+}
+
+enum EscalationStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+}
+
+model Escalation {
+  id             String           @id @default(cuid())
+  caseId         String
+  case           Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  reason         String
+  confidence     Float?
+  contextPackage Json // what's known/uncertain, handed to officer
+  status         EscalationStatus @default(OPEN)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([caseId])
+  @@index([status])
+}
+
+enum ActorType {
+  CITIZEN
+  AI_AGENT
+  OFFICER
+  ADMIN
+  SYSTEM
+}
+
+/// Append-only. No update/delete path is exposed at the application layer
+/// (PRD §6.2) -- every stage transition, AI claim and officer action lands
+/// here so trust/escalation metrics are reconstructable after the fact.
+model AuditEvent {
+  id        String    @id @default(cuid())
+  caseId    String?
+  case      Case?     @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  actorType ActorType
+  actorId   String?
+  action    String
+  payload   Json
+  createdAt DateTime  @default(now())
+
+  @@index([caseId])
+  @@index([actorType])
+  @@index([createdAt])
+}

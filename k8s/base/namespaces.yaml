@@ -1,0 +1,17 @@
+# Namespace separation per PRD §9: citizen traffic is bursty around
+# deadlines, officer console load is steady business-hours, and
+# internal/admin needs tighter network policy than either.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: citizen-facing
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: officer-facing
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: internal-admin
