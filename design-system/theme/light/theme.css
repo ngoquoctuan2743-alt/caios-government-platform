@@ -1,0 +1,68 @@
+/**
+ * Light theme — Vietnam Digital Government Design System.
+ * CSS custom properties only; no selectors beyond `:root` and `.vdg-light`
+ * so this file can be scoped (e.g. inside a themed preview) instead of only
+ * global.
+ */
+:root,
+.vdg-light {
+  /* Brand */
+  --vdg-color-primary: #c8102e;
+  --vdg-color-primary-dark: #991b1b;
+  --vdg-color-gold: #f4c542;
+
+  /* Semantic */
+  --vdg-color-blue: #2563eb;
+  --vdg-color-success: #22c55e;
+  --vdg-color-warning: #f59e0b;
+  --vdg-color-danger: #dc2626;
+  --vdg-color-info: #3b82f6;
+
+  /* Surfaces */
+  --vdg-color-background: #f6f8fb;
+  --vdg-color-surface: #ffffff;
+  --vdg-color-border: #e5e7eb;
+
+  /* Text */
+  --vdg-color-text: #111827;
+  --vdg-color-text-secondary: #6b7280;
+  --vdg-color-on-primary: #ffffff;
+
+  /* Elevation */
+  --vdg-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04);
+  --vdg-shadow-md: 0 4px 12px rgba(17, 24, 39, 0.06);
+  --vdg-shadow-lg: 0 12px 32px -8px rgba(17, 24, 39, 0.12);
+  --vdg-shadow-xl: 0 24px 48px -12px rgba(17, 24, 39, 0.18);
+  --vdg-shadow-glass: 0 8px 32px rgba(17, 24, 39, 0.08);
+
+  /* Glass surface (light mode only, per brief) */
+  --vdg-glass-bg: rgba(255, 255, 255, 0.72);
+  --vdg-glass-blur: 12px;
+
+  /* Radius */
+  --vdg-radius-sm: 0.375rem;
+  --vdg-radius-md: 0.625rem;
+  --vdg-radius-lg: 0.875rem;
+  --vdg-radius-xl: 1.25rem;
+  --vdg-radius-full: 9999px;
+
+  /* Focus ring (WCAG-visible, government-red accent) */
+  --vdg-focus-ring: 0 0 0 3px rgba(200, 16, 46, 0.35);
+
+  /*
+   * Font families. `next/font/google` (see implementation-guide.md) sets
+   * these three custom properties on <html> once wired into an app; the
+   * literal fallbacks below let every component render sensibly even
+   * before that wiring exists.
+   *
+   * Heading is Be Vietnam Pro, not Poppins. Poppins has no Vietnamese
+   * glyph coverage at all (verified against Google Fonts' own subset
+   * list for the original brief's font choice) -- Be Vietnam Pro is a
+   * geometric sans purpose-built for Vietnamese, with full Latin coverage
+   * too, so this platform's Vietnamese-first requirement wins over visual
+   * similarity to the original brief's stated heading face.
+   */
+  --vdg-font-heading: "Be Vietnam Pro", system-ui, sans-serif;
+  --vdg-font-body: "Inter", system-ui, sans-serif;
+  --vdg-font-code: "JetBrains Mono", ui-monospace, monospace;
+}

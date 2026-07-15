@@ -1,0 +1,58 @@
+{
+  "packVersion": "0.1.0-draft",
+  "lastReviewed": "2026-07-14",
+  "schema": "metadata/schema.md",
+  "procedures": [
+    {
+      "procedureId": "CCCD_RENEWAL",
+      "path": "procedures/cccd-gia-han.md",
+      "citizenFriendlyName": "Renew my Citizen ID (CCCD)",
+      "confidenceLevel": "Medium",
+      "dataVersion": "0.1.0-draft"
+    },
+    {
+      "procedureId": "CCCD_FIRST_ISSUANCE",
+      "path": "procedures/cccd-cap-moi.md",
+      "citizenFriendlyName": "Get my first Citizen ID (CCCD)",
+      "confidenceLevel": "Medium",
+      "dataVersion": "0.1.0-draft"
+    },
+    {
+      "procedureId": "CCCD_REPLACEMENT",
+      "path": "procedures/cccd-doi.md",
+      "citizenFriendlyName": "Replace my Citizen ID because it's damaged or my information changed",
+      "confidenceLevel": "Medium",
+      "dataVersion": "0.1.0-draft"
+    },
+    {
+      "procedureId": "CCCD_REISSUE",
+      "path": "procedures/cccd-cap-lai.md",
+      "citizenFriendlyName": "Get a replacement for my lost Citizen ID",
+      "confidenceLevel": "Medium",
+      "dataVersion": "0.1.0-draft"
+    }
+  ],
+  "documents": [
+    { "documentId": "APPLICATION_FORM", "path": "documents/application-form.md" },
+    { "documentId": "CURRENT_ID_DOCUMENT", "path": "documents/current-id-document.md" },
+    { "documentId": "BIRTH_CERTIFICATE", "path": "documents/birth-certificate.md" },
+    { "documentId": "PORTRAIT_PHOTO", "path": "documents/portrait-photo.md" },
+    { "documentId": "HOUSEHOLD_REGISTRATION_EXTRACT", "path": "documents/household-registration-extract.md" },
+    { "documentId": "LOSS_DECLARATION", "path": "documents/loss-declaration.md" },
+    { "documentId": "DAMAGE_OR_CHANGE_EVIDENCE", "path": "documents/damage-or-change-evidence.md" }
+  ],
+  "citations": [
+    { "citationId": "LUAT_CAN_CUOC_2023", "path": "citations/luat-can-cuoc-2023.md", "verified": false },
+    { "citationId": "NGHI_DINH_HUONG_DAN_CAN_CUOC", "path": "citations/nghi-dinh-huong-dan-can-cuoc.md", "verified": false },
+    { "citationId": "THONG_TU_ANH_CHAN_DUNG", "path": "citations/thong-tu-anh-chan-dung.md", "verified": false },
+    { "citationId": "THONG_TU_LE_PHI_CCCD", "path": "citations/thong-tu-le-phi-cccd.md", "verified": false }
+  ],
+  "goals": "goals/index.json",
+  "lifeEvents": "life-events/index.json",
+  "affectedAssets": "affected-assets/index.json",
+  "glossary": "glossary/glossary.md",
+  "verificationStatus": {
+    "allCitationsVerified": false,
+    "note": "No entry in this pack has been independently verified against an official gazette or authoritative government portal. Every specific fee, processing-day count, and article/clause reference is a placeholder pending review by a qualified legal reviewer, per metadata/schema.md's Knowledge Rules."
+  }
+}

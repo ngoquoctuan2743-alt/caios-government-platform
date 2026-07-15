@@ -1,0 +1,94 @@
+{
+  "layerVersion": "0.1.0-draft",
+  "lastReviewed": "2026-07-14",
+  "description": "Affected Assets sit between Life Event and Procedure. A citizen's situation (Life Event) implicates one or more concrete government-held Assets; each Asset resolves to one or more Procedures. This file is the three-level chain Asset -> Life Events -> Procedures, the single source of truth for that relationship.",
+  "assets": [
+    { "assetId": "CITIZEN_ID_CARD", "path": "citizen-id-card.md" },
+    { "assetId": "DRIVER_LICENSE", "path": "driver-license.md" },
+    { "assetId": "HEALTH_INSURANCE_CARD", "path": "health-insurance-card.md" },
+    { "assetId": "PASSPORT", "path": "passport.md" },
+    { "assetId": "RESIDENCE_INFORMATION", "path": "residence-information.md" },
+    { "assetId": "BANK_CARDS", "path": "bank-cards.md", "outOfScope": true },
+    { "assetId": "CITIZEN_INFORMATION", "path": "citizen-information.md" },
+    { "assetId": "HOUSEHOLD_INFORMATION", "path": "household-information.md" },
+    { "assetId": "TAX_INFORMATION", "path": "tax-information.md" },
+    { "assetId": "BIRTH_REGISTRATION_RECORD", "path": "birth-registration-record.md" },
+    { "assetId": "CITIZEN_REGISTRY_ENTRY", "path": "citizen-registry-entry.md" },
+    { "assetId": "DEATH_REGISTRATION_RECORD", "path": "death-registration-record.md" }
+  ],
+  "assetToLifeEventsToProcedures": {
+    "CITIZEN_ID_CARD": {
+      "lifeEvents": ["LOST_WALLET", "EXPIRED_CITIZEN_ID", "FIRST_TIME_CITIZEN_ID", "CHANGE_OF_NAME"],
+      "procedures": ["CCCD_REISSUE", "CCCD_RENEWAL", "CCCD_FIRST_ISSUANCE", "CCCD_REPLACEMENT"]
+    },
+    "DRIVER_LICENSE": {
+      "lifeEvents": ["LOST_WALLET"],
+      "procedures": ["DRIVER_LICENSE_REISSUE"]
+    },
+    "HEALTH_INSURANCE_CARD": {
+      "lifeEvents": ["LOST_WALLET", "BIRTH_OF_CHILD"],
+      "procedures": ["HEALTH_INSURANCE_CARD_REISSUE", "HEALTH_INSURANCE_REGISTRATION"]
+    },
+    "PASSPORT": {
+      "lifeEvents": ["LOST_WALLET"],
+      "procedures": ["PASSPORT_REISSUE"]
+    },
+    "RESIDENCE_INFORMATION": {
+      "lifeEvents": ["LOST_WALLET", "MARRIAGE", "MOVING_RESIDENCE"],
+      "procedures": ["RESIDENCE_REGISTRATION"]
+    },
+    "BANK_CARDS": {
+      "lifeEvents": ["LOST_WALLET"],
+      "procedures": [],
+      "note": "Out of scope by design -- no government procedure exists or will exist for this asset."
+    },
+    "CITIZEN_INFORMATION": {
+      "lifeEvents": ["MARRIAGE", "CHANGE_OF_NAME", "MOVING_RESIDENCE"],
+      "procedures": ["CITIZEN_INFORMATION_UPDATE"]
+    },
+    "HOUSEHOLD_INFORMATION": {
+      "lifeEvents": ["MARRIAGE", "BIRTH_OF_CHILD", "DEATH_OF_RELATIVE", "MOVING_RESIDENCE", "CHANGE_OF_NAME"],
+      "procedures": ["HOUSEHOLD_REGISTRATION_UPDATE"]
+    },
+    "TAX_INFORMATION": {
+      "lifeEvents": ["MARRIAGE"],
+      "procedures": ["TAX_INFORMATION_UPDATE"]
+    },
+    "BIRTH_REGISTRATION_RECORD": {
+      "lifeEvents": ["BIRTH_OF_CHILD"],
+      "procedures": ["BIRTH_REGISTRATION"]
+    },
+    "CITIZEN_REGISTRY_ENTRY": {
+      "lifeEvents": ["BIRTH_OF_CHILD", "DEATH_OF_RELATIVE"],
+      "procedures": ["BIRTH_REGISTRATION", "DEATH_REGISTRATION"]
+    },
+    "DEATH_REGISTRATION_RECORD": {
+      "lifeEvents": ["DEATH_OF_RELATIVE"],
+      "procedures": ["DEATH_REGISTRATION"]
+    }
+  },
+  "procedureToAssets": {
+    "CCCD_REISSUE": ["CITIZEN_ID_CARD"],
+    "CCCD_RENEWAL": ["CITIZEN_ID_CARD"],
+    "CCCD_FIRST_ISSUANCE": ["CITIZEN_ID_CARD"],
+    "CCCD_REPLACEMENT": ["CITIZEN_ID_CARD"],
+    "DRIVER_LICENSE_REISSUE": ["DRIVER_LICENSE"],
+    "HEALTH_INSURANCE_CARD_REISSUE": ["HEALTH_INSURANCE_CARD"],
+    "HEALTH_INSURANCE_REGISTRATION": ["HEALTH_INSURANCE_CARD"],
+    "PASSPORT_REISSUE": ["PASSPORT"],
+    "RESIDENCE_REGISTRATION": ["RESIDENCE_INFORMATION"],
+    "CITIZEN_INFORMATION_UPDATE": ["CITIZEN_INFORMATION"],
+    "HOUSEHOLD_REGISTRATION_UPDATE": ["HOUSEHOLD_INFORMATION"],
+    "TAX_INFORMATION_UPDATE": ["TAX_INFORMATION"],
+    "BIRTH_REGISTRATION": ["BIRTH_REGISTRATION_RECORD", "CITIZEN_REGISTRY_ENTRY"],
+    "DEATH_REGISTRATION": ["DEATH_REGISTRATION_RECORD", "CITIZEN_REGISTRY_ENTRY"]
+  },
+  "outOfScopeAssets": ["BANK_CARDS"],
+  "assetDependencies": {
+    "CITIZEN_REGISTRY_ENTRY": ["BIRTH_REGISTRATION_RECORD", "DEATH_REGISTRATION_RECORD"],
+    "HEALTH_INSURANCE_CARD": ["BIRTH_REGISTRATION_RECORD"],
+    "HOUSEHOLD_INFORMATION": ["BIRTH_REGISTRATION_RECORD", "DEATH_REGISTRATION_RECORD"],
+    "CITIZEN_INFORMATION": ["MARRIAGE_REGISTRATION"],
+    "TAX_INFORMATION": ["MARRIAGE_REGISTRATION"]
+  }
+}

@@ -1,32 +1,34 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { listCasesForCitizen } from "@/lib/memory/case-memory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CASE_STAGE_LABEL } from "@/lib/case/stages";
 
 export default async function CitizenDashboardPage() {
   const session = await getSession();
-  const citizen = await prisma.citizen.findUnique({
-    where: { userId: session!.sub },
-    include: { cases: { include: { procedure: true }, orderBy: { updatedAt: "desc" } } },
-  });
-
-  const cases = citizen?.cases ?? [];
+  const cases = await listCasesForCitizen(session!.sub);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Your cases</h1>
-        <p className="text-muted-foreground">
-          Track every procedure you have open with the government, end to end.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Your cases</h1>
+          <p className="text-muted-foreground">
+            Track every procedure you have open with the government, end to end.
+          </p>
+        </div>
+        <Button render={<Link href="/citizen/cases/new" />}>Start a new case</Button>
       </div>
 
       {cases.length === 0 ? (
         <Card>
-          <CardContent className="py-10 text-center text-muted-foreground">
-            You don&apos;t have any open cases yet.
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center text-muted-foreground">
+            <p>You don&apos;t have any open cases yet.</p>
+            <Button variant="outline" render={<Link href="/citizen/cases/new" />}>
+              Start your first case
+            </Button>
           </CardContent>
         </Card>
       ) : (

@@ -1,7 +1,18 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Role, CaseStage, DocStatus } from "../src/generated/prisma/client";
+import {
+  PrismaClient,
+  Role,
+  CaseStage,
+  DocStatus,
+  WorkflowState,
+  ActorType,
+} from "../src/generated/prisma/client";
+import {
+  transitionCase,
+  WorkflowTransitionError,
+} from "../src/lib/orchestration/workflow-state-machine";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -12,8 +23,8 @@ async function main() {
   const [citizenUser, officerUser, adminUser] = await Promise.all([
     prisma.user.upsert({
       where: { email: "citizen@example.com" },
-      update: {},
-      create: { email: "citizen@example.com", passwordHash, role: Role.CITIZEN },
+      update: { jurisdiction: "HANOI" },
+      create: { email: "citizen@example.com", passwordHash, role: Role.CITIZEN, jurisdiction: "HANOI" },
     }),
     prisma.user.upsert({
       where: { email: "officer@example.com" },
@@ -44,16 +55,30 @@ async function main() {
     },
   });
 
-  const procedure = await prisma.procedure.upsert({
-    where: { code: "ID_CARD_RENEWAL" },
-    update: {},
-    create: {
-      code: "ID_CARD_RENEWAL",
-      name: "ID Card Renewal",
-      ruleSetVersion: "2026.01",
-      legalSources: { connect: [{ id: legalSource.id }] },
-    },
-  });
+  // ADR-0012 (Procedure Identity Strategy) §7 reconciliation: this seeded
+  // Phase-0 procedure and the Knowledge Library's `CCCD_RENEWAL` have been
+  // treated as the same real-world procedure throughout Sprints 01B/01D/01F
+  // (case-init.ts's own pilot-procedure framing); canonicalId records that
+  // decision explicitly rather than leaving it implicit.
+  //
+  // ADR-0012 Phase 2: resolved by Canonical ID first -- the legacy `code`
+  // upsert only runs as a fallback, for a database that has never been
+  // seeded under this strategy before. Once canonicalId is set, every later
+  // run finds the row via canonicalId directly and never touches `code`
+  // again, mirroring case-init.ts's own canonical-first, code-fallback order.
+  const procedure =
+    (await prisma.procedure.findUnique({ where: { canonicalId: "CCCD_RENEWAL" } })) ??
+    (await prisma.procedure.upsert({
+      where: { code: "ID_CARD_RENEWAL" },
+      update: { canonicalId: "CCCD_RENEWAL" },
+      create: {
+        code: "ID_CARD_RENEWAL",
+        name: "ID Card Renewal",
+        ruleSetVersion: "2026.01",
+        canonicalId: "CCCD_RENEWAL",
+        legalSources: { connect: [{ id: legalSource.id }] },
+      },
+    }));
 
   const citizen = await prisma.citizen.upsert({
     where: { userId: citizenUser.id },
@@ -75,6 +100,7 @@ async function main() {
         citizenId: citizen.id,
         procedureId: procedure.id,
         stage: CaseStage.CHECKLIST,
+        workflowState: WorkflowState.WAITING_DOCUMENTS,
         eligibility: { ageOver14: true, residencyVerified: true },
         checklist: {
           create: [
@@ -86,6 +112,29 @@ async function main() {
       },
     }));
 
+  // Demonstrate the Orchestration Subsystem's state machine (Epic A, Milestone
+  // M1) only on first seed -- re-running the seed against an existing case
+  // shouldn't replay transitions that already happened.
+  if (!existingCase) {
+    try {
+      await transitionCase(citizenCase.id, WorkflowState.APPROVED, {
+        actorType: ActorType.SYSTEM,
+      });
+      console.error("Expected an illegal transition to be rejected, but it succeeded.");
+    } catch (err) {
+      if (err instanceof WorkflowTransitionError) {
+        console.log(`Correctly rejected illegal transition: ${err.message}`);
+      } else {
+        throw err;
+      }
+    }
+
+    await transitionCase(citizenCase.id, WorkflowState.WAITING_CITIZEN, {
+      actorType: ActorType.SYSTEM,
+    });
+    console.log("Correctly applied legal transition: WAITING_DOCUMENTS -> WAITING_CITIZEN");
+  }
+
   await prisma.escalation.upsert({
     where: { id: "seed-escalation-1" },
     update: {},
@@ -95,7 +144,10 @@ async function main() {
       reason: "RAG returned conflicting legal sources for photo requirements",
       confidence: 0.42,
       contextPackage: {
-        known: { procedure: "ID_CARD_RENEWAL", stage: "CHECKLIST" },
+        // ADR-0012 Phase 2: Canonical ID first, legacy code only as a
+        // fallback for a Procedure row that predates the canonicalId
+        // backfill -- never the reverse.
+        known: { procedure: procedure.canonicalId ?? procedure.code, stage: "CHECKLIST" },
         uncertain: ["photo background color requirement changed in 2024"],
         sources: [legalSource.vectorDocId],
       },
@@ -105,7 +157,9 @@ async function main() {
 
   console.log("Seeded:", {
     users: [citizenUser.email, officerUser.email, adminUser.email],
-    procedure: procedure.code,
+    // ADR-0012 Phase 2: report the Canonical ID, falling back to the legacy
+    // Database Code only if canonicalId was somehow never backfilled.
+    procedure: procedure.canonicalId ?? procedure.code,
     case: citizenCase.id,
   });
 }

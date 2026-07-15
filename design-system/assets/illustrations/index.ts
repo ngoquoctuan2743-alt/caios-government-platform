@@ -1,0 +1,17 @@
+export type { VdgAssetProps } from "../shared/types";
+export * from "./CitizenIllustration";
+export * from "./BusinessIllustration";
+export * from "./GovernmentOfficerIllustration";
+export * from "./AIAssistantIllustration";
+export * from "./WorkflowIllustration";
+export * from "./DigitalDocumentsIllustration";
+export * from "./DigitalSignatureIllustration";
+export * from "./PaymentIllustration";
+export * from "./NotificationIllustration";
+export * from "./AnalyticsIllustration";
+export * from "./AuthenticationIllustration";
+export * from "./EmptyStatesIllustration";
+export * from "./SmartSearchIllustration";
+export * from "./SupportCenterIllustration";
+export * from "./SmartCityIllustration";
+export * from "./NationalDataPlatformIllustration";

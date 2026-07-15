@@ -1,0 +1,8 @@
+-- CreateEnum
+CREATE TYPE "WorkflowState" AS ENUM ('DRAFT', 'PREPARING', 'WAITING_CITIZEN', 'WAITING_DOCUMENTS', 'READY_TO_SUBMIT', 'SUBMITTED', 'UNDER_REVIEW', 'NEED_MORE_INFORMATION', 'ESCALATED', 'APPROVED', 'REJECTED', 'COMPLETED', 'ARCHIVED');
+
+-- AlterTable
+ALTER TABLE "Case" ADD COLUMN     "workflowState" "WorkflowState" NOT NULL DEFAULT 'DRAFT';
+
+-- CreateIndex
+CREATE INDEX "Case_workflowState_idx" ON "Case"("workflowState");

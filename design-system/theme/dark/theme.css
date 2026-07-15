@@ -1,0 +1,64 @@
+/**
+ * Dark theme — Vietnam Digital Government Design System.
+ * No glassmorphism here by design (brief specifies "Glassmorphism (light
+ * only)") — dark surfaces use flat elevation via shadow + border instead.
+ */
+.vdg-dark {
+  /* Brand */
+  --vdg-color-primary: #c8102e;
+  --vdg-color-primary-dark: #7f1717;
+  --vdg-color-gold: #f4c542;
+
+  /* Semantic — same hues, unchanged (already legible on dark per brief) */
+  --vdg-color-blue: #2563eb;
+  --vdg-color-success: #22c55e;
+  --vdg-color-warning: #f59e0b;
+  --vdg-color-danger: #dc2626;
+  --vdg-color-info: #3b82f6;
+
+  /* Surfaces */
+  --vdg-color-background: #0f172a;
+  --vdg-color-surface: #111827;
+  --vdg-color-border: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --vdg-color-text: #ffffff;
+  --vdg-color-text-secondary: #94a3b8;
+  --vdg-color-on-primary: #ffffff;
+
+  /* Card is a distinct token from surface per brief (#1E293B vs #111827) */
+  --vdg-color-card: #1e293b;
+
+  /* Accent for small interactive text on the darkest background — see tokens/colors.ts note */
+  --vdg-color-accent-on-dark: #f0455c;
+
+  /* Elevation — deeper than light mode; dark-on-dark needs more spread to read as elevated */
+  --vdg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --vdg-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --vdg-shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.55);
+  --vdg-shadow-xl: 0 28px 56px -12px rgba(0, 0, 0, 0.6);
+
+  /* Radius — identical to light; radius is not a themeable property */
+  --vdg-radius-sm: 0.375rem;
+  --vdg-radius-md: 0.625rem;
+  --vdg-radius-lg: 0.875rem;
+  --vdg-radius-xl: 1.25rem;
+  --vdg-radius-full: 9999px;
+
+  /* Focus ring — brighter red for AA visibility on dark surfaces */
+  --vdg-focus-ring: 0 0 0 3px rgba(240, 69, 92, 0.45);
+
+  /* Fonts — unchanged between themes; see theme/light/theme.css for the Be Vietnam Pro rationale. */
+  --vdg-font-heading: "Be Vietnam Pro", system-ui, sans-serif;
+  --vdg-font-body: "Inter", system-ui, sans-serif;
+  --vdg-font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  /*
+   * Disables Card's `glass` variant in dark mode (brief: "Glassmorphism
+   * (light only)") by making its two custom properties resolve to a flat
+   * card surface instead of a translucent one — no separate dark-mode
+   * class branch needed in Card.tsx.
+   */
+  --vdg-glass-bg: var(--vdg-color-card);
+  --vdg-glass-blur: 0px;
+}

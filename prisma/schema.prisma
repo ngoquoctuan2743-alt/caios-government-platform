@@ -54,9 +54,16 @@ model Citizen {
 
 model Procedure {
   id             String        @id @default(cuid())
-  code           String        @unique // e.g. "ID_CARD_RENEWAL"
+  code           String        @unique // Database Code, e.g. "ID_CARD_RENEWAL" -- unchanged, never renamed (ADR-0012)
   name           String
   ruleSetVersion String // ties to Rule Engine version
+
+  /// ADR-0012 (Procedure Identity Strategy) additions -- both additive and
+  /// nullable, so every existing row and every existing reference to `code`
+  /// or `id` remains valid without a data migration.
+  canonicalId String? @unique // Canonical ID = the Knowledge Library's own procedureId (e.g. "CCCD_RENEWAL"); never reused/reassigned once set
+  governmentProcedureCode String? // reserved for future real government-platform integration; null until that integration exists (out of scope, see Non-Goals)
+
   legalSources   LegalSource[]
   cases          Case[]
 }
@@ -71,18 +78,44 @@ enum CaseStage {
   TRACKING
 }
 
+/// The 13-state execution state machine from WORKFLOW_CONSTITUTION.md Chapter 4.
+/// Distinct from CaseStage: CaseStage is the citizen-facing lifecycle phase
+/// (which of the 7 conceptual stages the case's content work is in);
+/// WorkflowState is what the Orchestration Subsystem (Epic A) actually
+/// enforces transitions against.
+enum WorkflowState {
+  DRAFT
+  PREPARING
+  WAITING_CITIZEN
+  WAITING_DOCUMENTS
+  READY_TO_SUBMIT
+  SUBMITTED
+  UNDER_REVIEW
+  NEED_MORE_INFORMATION
+  ESCALATED
+  APPROVED
+  REJECTED
+  COMPLETED
+  ARCHIVED
+}
+
 model Case {
-  id          String    @id @default(cuid())
-  citizenId   String
-  citizen     Citizen   @relation(fields: [citizenId], references: [id], onDelete: Cascade)
-  procedureId String
-  procedure   Procedure @relation(fields: [procedureId], references: [id])
-  stage       CaseStage @default(INTAKE)
-  eligibility Json? // structured answers
+  id            String        @id @default(cuid())
+  citizenId     String
+  citizen       Citizen       @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  procedureId   String
+  procedure     Procedure     @relation(fields: [procedureId], references: [id])
+  stage         CaseStage     @default(INTAKE)
+  workflowState WorkflowState @default(DRAFT)
+  eligibility   Json? // structured answers
 
   checklist   ChecklistItem[]
   auditEvents AuditEvent[]
   escalations Escalation[]
+
+  conversationTurns    ConversationTurn[]
+  procedureResolutions ProcedureResolution[]
+  citationResolutions  CitationResolution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -90,6 +123,7 @@ model Case {
   @@index([citizenId])
   @@index([procedureId])
   @@index([stage])
+  @@index([workflowState])
 }
 
 enum DocStatus {
@@ -107,8 +141,19 @@ model ChecklistItem {
   documentType String
   status       DocStatus @default(REQUIRED)
   ocrExtract   Json?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+
+  /// Sprint 01F additions -- plain reference fields, not FKs into Procedure,
+  /// per the Procedure.code / Knowledge Library procedureId duality flagged
+  /// since Sprint 01B (see that sprint's Known Issues). All nullable so
+  /// existing rows (e.g. from prisma/seed.ts, authored before this sprint)
+  /// remain valid without a data migration.
+  procedureId String? // Knowledge Library procedureId (e.g. "CCCD_RENEWAL"), not Procedure.id
+  documentId  String? // Knowledge Library documentId (e.g. "CURRENT_ID_DOCUMENT")
+  optional    Boolean @default(false) // true when sourced from a procedure's optionalDocuments list
+  source      String? // provenance, e.g. "SPRINT_01D_DETERMINISTIC_GENERATOR"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([caseId])
 }
@@ -169,4 +214,71 @@ model AuditEvent {
   @@index([caseId])
   @@index([actorType])
   @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Sprint 01F -- Persistence Integration (Volume 45 Conversation Memory /
+// Volume 46 Case Evidence, minimal single-table shape for this sprint's
+// declared scope -- not the full Volume 45 Conversation/Turn/Message object
+// model; see the sprint report's Known Issues)
+// ---------------------------------------------------------------------------
+
+/// One row per citizen/assistant turn. Deliberately a single flat table
+/// (not a separate Conversation + Message pair) -- sufficient for this
+/// sprint's "persist everything required for future turns" scope without
+/// introducing the fuller object model Volume 45 defines.
+model ConversationTurn {
+  id                String   @id @default(cuid())
+  caseId            String
+  case              Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  citizenMessage    String
+  assistantResponse String
+  turnNumber        Int
+  responseTimeMs    Int
+  createdAt         DateTime @default(now())
+
+  procedureResolution ProcedureResolution?
+  citationResolutions CitationResolution[]
+
+  @@index([caseId])
+  @@index([caseId, turnNumber])
+}
+
+/// Exactly what Sprint 01B's recognizeProcedure() resolved for one turn.
+/// Created only when that turn's recognition status was RECOGNIZED.
+model ProcedureResolution {
+  id                 String           @id @default(cuid())
+  caseId             String
+  case               Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  conversationTurnId String           @unique
+  conversationTurn   ConversationTurn @relation(fields: [conversationTurnId], references: [id], onDelete: Cascade)
+  procedureId        String // Knowledge Library procedureId, e.g. "CCCD_RENEWAL"
+  confidence         String // "High" | "Medium" | "Low", verbatim from Sprint 01B
+  source             String // "PROCEDURE_ALIAS" | "LIFE_EVENT" | "GOAL"
+  matchedPhrase      String
+  createdAt          DateTime         @default(now())
+
+  @@index([caseId])
+  @@index([procedureId])
+}
+
+/// Exactly what Sprint 01C's resolveCitationsForProcedure() resolved -- one
+/// row per citation, never merged or summarized.
+model CitationResolution {
+  id                 String           @id @default(cuid())
+  caseId             String
+  case               Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  conversationTurnId String
+  conversationTurn   ConversationTurn @relation(fields: [conversationTurnId], references: [id], onDelete: Cascade)
+  procedureId        String
+  citationId         String
+  citationLevel      String // Volume 44 §4's six-value enum, verbatim
+  verificationStatus String // "RESOLVED" | "NOT_FOUND"
+  confidence         String // "High" | "Medium" | "Low" | "Unknown"
+  traceability       String[] // file path(s), verbatim from Sprint 01C
+  createdAt          DateTime         @default(now())
+
+  @@index([caseId])
+  @@index([conversationTurnId])
+  @@index([citationId])
 }

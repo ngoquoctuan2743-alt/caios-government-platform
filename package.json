@@ -2,6 +2,9 @@
   "name": "citizen-ai-case-manager",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "design-system"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

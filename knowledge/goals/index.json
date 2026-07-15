@@ -1,0 +1,72 @@
+{
+  "layerVersion": "0.1.0-draft",
+  "lastReviewed": "2026-07-14",
+  "description": "Citizen Goals are the highest semantic layer in the knowledge graph. A citizen's goal implicates one or more Life Events; each Life Event implicates one or more Affected Assets; each Asset resolves to one or more Procedures. This file is the four-level chain Goal -> Life Events -> Affected Assets -> Procedures, computed transitively from the two lower-layer index files -- goal files do not independently author asset or procedure facts.",
+  "goals": [
+    { "goalId": "TRAVEL_ABROAD", "path": "travel-abroad.md" },
+    { "goalId": "START_A_FAMILY", "path": "start-a-family.md" },
+    { "goalId": "RAISE_A_CHILD", "path": "raise-a-child.md" },
+    { "goalId": "BUY_A_HOME", "path": "buy-a-home.md" },
+    { "goalId": "MOVE_TO_A_NEW_CITY", "path": "move-to-a-new-city.md" },
+    { "goalId": "FIND_EMPLOYMENT", "path": "find-employment.md" },
+    { "goalId": "RETIRE", "path": "retire.md" },
+    { "goalId": "STUDY", "path": "study.md" },
+    { "goalId": "HEALTHCARE", "path": "healthcare.md" },
+    { "goalId": "RECOVER_LOST_DOCUMENTS", "path": "recover-lost-documents.md" }
+  ],
+  "goalChain": {
+    "RECOVER_LOST_DOCUMENTS": {
+      "lifeEvents": ["LOST_WALLET"],
+      "affectedAssets": ["CITIZEN_ID_CARD", "DRIVER_LICENSE", "HEALTH_INSURANCE_CARD", "PASSPORT", "RESIDENCE_INFORMATION", "BANK_CARDS"],
+      "procedures": ["CCCD_REISSUE", "DRIVER_LICENSE_REISSUE", "HEALTH_INSURANCE_CARD_REISSUE", "PASSPORT_REISSUE", "RESIDENCE_REGISTRATION"]
+    },
+    "TRAVEL_ABROAD": {
+      "lifeEvents": ["EXPIRED_CITIZEN_ID", "FIRST_TIME_CITIZEN_ID", "LOST_WALLET"],
+      "affectedAssets": ["CITIZEN_ID_CARD", "PASSPORT", "DRIVER_LICENSE", "HEALTH_INSURANCE_CARD", "RESIDENCE_INFORMATION", "BANK_CARDS"],
+      "procedures": ["CCCD_RENEWAL", "CCCD_FIRST_ISSUANCE", "CCCD_REISSUE", "PASSPORT_REISSUE", "DRIVER_LICENSE_REISSUE", "HEALTH_INSURANCE_CARD_REISSUE", "RESIDENCE_REGISTRATION"]
+    },
+    "START_A_FAMILY": {
+      "lifeEvents": ["MARRIAGE", "BIRTH_OF_CHILD"],
+      "affectedAssets": ["HOUSEHOLD_INFORMATION", "TAX_INFORMATION", "CITIZEN_INFORMATION", "BIRTH_REGISTRATION_RECORD", "CITIZEN_REGISTRY_ENTRY", "HEALTH_INSURANCE_CARD"],
+      "procedures": ["MARRIAGE_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE", "TAX_INFORMATION_UPDATE", "CITIZEN_INFORMATION_UPDATE", "BIRTH_REGISTRATION", "HEALTH_INSURANCE_REGISTRATION"]
+    },
+    "RAISE_A_CHILD": {
+      "lifeEvents": ["BIRTH_OF_CHILD"],
+      "affectedAssets": ["BIRTH_REGISTRATION_RECORD", "CITIZEN_REGISTRY_ENTRY", "HEALTH_INSURANCE_CARD", "HOUSEHOLD_INFORMATION"],
+      "procedures": ["BIRTH_REGISTRATION", "HEALTH_INSURANCE_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE"]
+    },
+    "BUY_A_HOME": {
+      "lifeEvents": ["MOVING_RESIDENCE"],
+      "affectedAssets": ["RESIDENCE_INFORMATION", "CITIZEN_INFORMATION"],
+      "procedures": ["RESIDENCE_REGISTRATION", "CITIZEN_INFORMATION_UPDATE"]
+    },
+    "MOVE_TO_A_NEW_CITY": {
+      "lifeEvents": ["MOVING_RESIDENCE"],
+      "affectedAssets": ["RESIDENCE_INFORMATION", "CITIZEN_INFORMATION"],
+      "procedures": ["RESIDENCE_REGISTRATION", "CITIZEN_INFORMATION_UPDATE"]
+    },
+    "HEALTHCARE": {
+      "lifeEvents": ["BIRTH_OF_CHILD"],
+      "affectedAssets": ["HEALTH_INSURANCE_CARD", "BIRTH_REGISTRATION_RECORD", "CITIZEN_REGISTRY_ENTRY"],
+      "procedures": ["HEALTH_INSURANCE_REGISTRATION"]
+    },
+    "FIND_EMPLOYMENT": { "lifeEvents": [], "affectedAssets": [], "procedures": [], "status": "no_coverage_yet" },
+    "RETIRE": { "lifeEvents": [], "affectedAssets": [], "procedures": [], "status": "no_coverage_yet" },
+    "STUDY": { "lifeEvents": [], "affectedAssets": [], "procedures": [], "status": "no_coverage_yet" }
+  },
+  "lifeEventToGoals": {
+    "LOST_WALLET": ["RECOVER_LOST_DOCUMENTS", "TRAVEL_ABROAD"],
+    "EXPIRED_CITIZEN_ID": ["TRAVEL_ABROAD"],
+    "FIRST_TIME_CITIZEN_ID": ["TRAVEL_ABROAD"],
+    "MARRIAGE": ["START_A_FAMILY"],
+    "BIRTH_OF_CHILD": ["START_A_FAMILY", "RAISE_A_CHILD", "HEALTHCARE"],
+    "DEATH_OF_RELATIVE": [],
+    "MOVING_RESIDENCE": ["BUY_A_HOME", "MOVE_TO_A_NEW_CITY"],
+    "CHANGE_OF_NAME": []
+  },
+  "coverageGaps": {
+    "goalsWithNoLifeEventCoverage": ["FIND_EMPLOYMENT", "RETIRE", "STUDY"],
+    "lifeEventsWithNoGoalYet": ["DEATH_OF_RELATIVE", "CHANGE_OF_NAME"],
+    "note": "DEATH_OF_RELATIVE and CHANGE_OF_NAME are fully modeled life events with no goal above them yet in this initial 10-goal set -- likely candidates: a future 'Settle a Family Estate' or 'Manage a Bereavement' goal, and a future 'Correct My Legal Identity' goal, respectively. Recorded here so the gap is visible rather than silently absent."
+  }
+}

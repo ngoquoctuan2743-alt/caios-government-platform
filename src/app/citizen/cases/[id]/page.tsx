@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { getCaseForCitizen } from "@/lib/memory/case-memory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CASE_STAGE_LABEL, CASE_STAGE_ORDER, stageIndex } from "@/lib/case/stages";
+import {
+  CASE_STAGE_LABEL,
+  CASE_STAGE_ORDER,
+  stageIndex,
+  WORKFLOW_STATE_LABEL,
+} from "@/lib/case/stages";
 
 export default async function CaseTimelinePage({
   params,
@@ -13,14 +18,7 @@ export default async function CaseTimelinePage({
   const { id } = await params;
   const session = await getSession();
 
-  const citizenCase = await prisma.case.findFirst({
-    where: { id, citizen: { userId: session!.sub } },
-    include: {
-      procedure: true,
-      checklist: true,
-      escalations: { orderBy: { createdAt: "desc" } },
-    },
-  });
+  const citizenCase = await getCaseForCitizen(id, session!.sub);
 
   if (!citizenCase) notFound();
 
@@ -28,9 +26,12 @@ export default async function CaseTimelinePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{citizenCase.procedure.name}</h1>
-        <p className="text-muted-foreground">Case {citizenCase.id}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">{citizenCase.procedure.name}</h1>
+          <p className="text-muted-foreground">Case {citizenCase.id}</p>
+        </div>
+        <Badge variant="outline">{WORKFLOW_STATE_LABEL[citizenCase.workflowState]}</Badge>
       </div>
 
       <Card>

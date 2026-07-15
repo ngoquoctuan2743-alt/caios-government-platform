@@ -1,0 +1,52 @@
+{
+  "layerVersion": "0.1.0-draft",
+  "lastReviewed": "2026-07-14",
+  "description": "Life Events sit above the Procedure Library. A citizen's plain-language framing matches a Life Event first; the Life Event then fans out to one or more Procedures. This file is the many-to-many graph -- the single source of truth for that relationship, so no life-event file needs to duplicate another's mapping.",
+  "lifeEvents": [
+    { "lifeEventId": "LOST_WALLET", "path": "lost-wallet.md" },
+    { "lifeEventId": "EXPIRED_CITIZEN_ID", "path": "expired-citizen-id.md" },
+    { "lifeEventId": "FIRST_TIME_CITIZEN_ID", "path": "first-time-citizen-id.md" },
+    { "lifeEventId": "MARRIAGE", "path": "marriage.md" },
+    { "lifeEventId": "BIRTH_OF_CHILD", "path": "birth-of-child.md" },
+    { "lifeEventId": "DEATH_OF_RELATIVE", "path": "death-of-relative.md" },
+    { "lifeEventId": "MOVING_RESIDENCE", "path": "moving-residence.md" },
+    { "lifeEventId": "CHANGE_OF_NAME", "path": "change-of-name.md" }
+  ],
+  "lifeEventToProcedures": {
+    "LOST_WALLET": ["CCCD_REISSUE", "DRIVER_LICENSE_REISSUE", "HEALTH_INSURANCE_CARD_REISSUE"],
+    "EXPIRED_CITIZEN_ID": ["CCCD_RENEWAL"],
+    "FIRST_TIME_CITIZEN_ID": ["CCCD_FIRST_ISSUANCE"],
+    "MARRIAGE": ["MARRIAGE_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE", "TAX_INFORMATION_UPDATE", "CITIZEN_INFORMATION_UPDATE"],
+    "BIRTH_OF_CHILD": ["BIRTH_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE", "HEALTH_INSURANCE_REGISTRATION"],
+    "DEATH_OF_RELATIVE": ["DEATH_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE", "INHERITANCE_PROCEDURES"],
+    "MOVING_RESIDENCE": ["RESIDENCE_REGISTRATION", "CITIZEN_INFORMATION_UPDATE"],
+    "CHANGE_OF_NAME": ["CCCD_REPLACEMENT", "CITIZEN_INFORMATION_UPDATE", "HOUSEHOLD_REGISTRATION_UPDATE"]
+  },
+  "procedureToLifeEvents": {
+    "CCCD_RENEWAL": ["EXPIRED_CITIZEN_ID"],
+    "CCCD_FIRST_ISSUANCE": ["FIRST_TIME_CITIZEN_ID"],
+    "CCCD_REPLACEMENT": ["CHANGE_OF_NAME"],
+    "CCCD_REISSUE": ["LOST_WALLET"],
+    "HOUSEHOLD_REGISTRATION_UPDATE": ["MARRIAGE", "BIRTH_OF_CHILD", "DEATH_OF_RELATIVE", "MOVING_RESIDENCE", "CHANGE_OF_NAME"],
+    "CITIZEN_INFORMATION_UPDATE": ["MARRIAGE", "MOVING_RESIDENCE", "CHANGE_OF_NAME"],
+    "MARRIAGE_REGISTRATION": ["MARRIAGE"],
+    "TAX_INFORMATION_UPDATE": ["MARRIAGE"],
+    "BIRTH_REGISTRATION": ["BIRTH_OF_CHILD"],
+    "HEALTH_INSURANCE_REGISTRATION": ["BIRTH_OF_CHILD"],
+    "DEATH_REGISTRATION": ["DEATH_OF_RELATIVE"],
+    "INHERITANCE_PROCEDURES": ["DEATH_OF_RELATIVE"],
+    "RESIDENCE_REGISTRATION": ["MOVING_RESIDENCE"],
+    "DRIVER_LICENSE_REISSUE": ["LOST_WALLET"],
+    "HEALTH_INSURANCE_CARD_REISSUE": ["LOST_WALLET"]
+  },
+  "procedureLibraryStatus": {
+    "inLibrary": ["CCCD_RENEWAL", "CCCD_FIRST_ISSUANCE", "CCCD_REPLACEMENT", "CCCD_REISSUE"],
+    "plannedNotYetAuthored": [
+      "MARRIAGE_REGISTRATION", "HOUSEHOLD_REGISTRATION_UPDATE", "TAX_INFORMATION_UPDATE",
+      "CITIZEN_INFORMATION_UPDATE", "BIRTH_REGISTRATION", "HEALTH_INSURANCE_REGISTRATION",
+      "DEATH_REGISTRATION", "INHERITANCE_PROCEDURES", "RESIDENCE_REGISTRATION",
+      "DRIVER_LICENSE_REISSUE", "HEALTH_INSURANCE_CARD_REISSUE"
+    ],
+    "note": "11 of 15 referenced procedures do not yet exist as authored files in knowledge/procedures/. They are referenced by ID here, deliberately, so the Life Event graph is complete and correct now and each placeholder becomes a real procedure file later without needing the graph itself to change."
+  }
+}
