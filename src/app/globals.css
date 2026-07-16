@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,81 +49,83 @@
 }
 
 /*
- * Sprint: Startup Design System & Demo Polish.
- * Visual tokens only -- no component logic, no data, no schema. Palette
- * inspired by the modern AI-product genre (OpenAI/Linear/Vercel/Stripe):
- * a slightly blue-tinted near-black surface with one vivid indigo accent,
- * rather than the prior neutral-grayscale (0-chroma) palette.
+ * Vietnam Digital Government Platform palette -- ported from
+ * design-system/tokens/colors.ts so the real app matches the Government
+ * Platform design system it was previously only demonstrated in
+ * (design-system/pages/prototype). Government Red is the single brand
+ * accent, unchanged between light and dark theme by design (see
+ * design-system/docs/DESIGN_TOKENS.md). Replaces the prior indigo
+ * "AI-product genre" palette from the Startup Design System sprint.
  */
 :root {
-  --background: oklch(0.99 0.002 264);
-  --foreground: oklch(0.18 0.02 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 264);
-  --primary: oklch(0.56 0.22 264);
-  --primary-foreground: oklch(0.99 0.005 264);
-  --secondary: oklch(0.95 0.012 264);
-  --secondary-foreground: oklch(0.22 0.03 264);
-  --muted: oklch(0.96 0.008 264);
-  --muted-foreground: oklch(0.5 0.02 264);
-  --accent: oklch(0.94 0.03 280);
-  --accent-foreground: oklch(0.3 0.08 280);
-  --destructive: oklch(0.6 0.22 25);
-  --border: oklch(0.9 0.01 264);
-  --input: oklch(0.9 0.01 264);
-  --ring: oklch(0.56 0.22 264 / 50%);
-  --chart-1: oklch(0.62 0.19 264);
-  --chart-2: oklch(0.66 0.18 200);
-  --chart-3: oklch(0.7 0.17 150);
-  --chart-4: oklch(0.68 0.19 60);
-  --chart-5: oklch(0.62 0.22 25);
+  --background: #f6f8fb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #c8102e;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f6f9;
+  --secondary-foreground: #111827;
+  --muted: #f1f4f8;
+  --muted-foreground: #6b7280;
+  --accent: #f4c542;
+  --accent-foreground: #111827;
+  --destructive: #dc2626;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: oklch(0.56 0.22 25 / 50%);
+  --chart-1: #c8102e;
+  --chart-2: #2563eb;
+  --chart-3: #22c55e;
+  --chart-4: #f59e0b;
+  --chart-5: #3b82f6;
   --radius: 0.75rem;
-  --shadow-soft: 0 1px 2px oklch(0.18 0.02 264 / 4%), 0 8px 24px -8px oklch(0.18 0.02 264 / 12%);
-  --sidebar: oklch(0.97 0.006 264);
-  --sidebar-foreground: oklch(0.18 0.02 264);
-  --sidebar-primary: oklch(0.56 0.22 264);
-  --sidebar-primary-foreground: oklch(0.99 0.005 264);
-  --sidebar-accent: oklch(0.94 0.03 280);
-  --sidebar-accent-foreground: oklch(0.3 0.08 280);
-  --sidebar-border: oklch(0.9 0.01 264);
-  --sidebar-ring: oklch(0.56 0.22 264 / 50%);
+  --shadow-soft: 0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px -8px rgba(17, 24, 39, 0.12);
+  --sidebar: #f6f8fb;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #c8102e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4c542;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: oklch(0.56 0.22 25 / 50%);
 }
 
 .dark {
-  --background: oklch(0.16 0.014 264);
-  --foreground: oklch(0.96 0.006 264);
-  --card: oklch(0.2 0.016 264);
-  --card-foreground: oklch(0.96 0.006 264);
-  --popover: oklch(0.2 0.016 264);
-  --popover-foreground: oklch(0.96 0.006 264);
-  --primary: oklch(0.72 0.17 264);
-  --primary-foreground: oklch(0.14 0.02 264);
-  --secondary: oklch(0.26 0.018 264);
-  --secondary-foreground: oklch(0.96 0.006 264);
-  --muted: oklch(0.24 0.016 264);
-  --muted-foreground: oklch(0.66 0.018 264);
-  --accent: oklch(0.3 0.05 280);
-  --accent-foreground: oklch(0.92 0.02 280);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.17 264 / 50%);
-  --chart-1: oklch(0.72 0.17 264);
-  --chart-2: oklch(0.74 0.15 200);
-  --chart-3: oklch(0.76 0.15 150);
-  --chart-4: oklch(0.76 0.16 60);
-  --chart-5: oklch(0.72 0.19 25);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 30%), 0 12px 32px -12px oklch(0 0 0 / 55%);
-  --sidebar: oklch(0.19 0.015 264);
-  --sidebar-foreground: oklch(0.96 0.006 264);
-  --sidebar-primary: oklch(0.72 0.17 264);
-  --sidebar-primary-foreground: oklch(0.14 0.02 264);
-  --sidebar-accent: oklch(0.3 0.05 280);
-  --sidebar-accent-foreground: oklch(0.92 0.02 280);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.17 264 / 50%);
+  --background: #0f172a;
+  --foreground: #ffffff;
+  --card: #1e293b;
+  --card-foreground: #ffffff;
+  --popover: #1e293b;
+  --popover-foreground: #ffffff;
+  --primary: #c8102e;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #ffffff;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #f4c542;
+  --accent-foreground: #0f172a;
+  --destructive: #dc2626;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: oklch(0.6 0.22 25 / 50%);
+  --chart-1: #c8102e;
+  --chart-2: #3b82f6;
+  --chart-3: #22c55e;
+  --chart-4: #f59e0b;
+  --chart-5: #f0455c;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+  --sidebar: #111827;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #c8102e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4c542;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: oklch(0.6 0.22 25 / 50%);
 }
 
 @layer base {

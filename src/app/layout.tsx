@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro, Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Be Vietnam Pro replaces Geist for headings: it's the same face used across
+// the Government Platform design system, and (unlike Geist) ships full
+// Vietnamese diacritic coverage -- this app serves Vietnamese citizens.
+const headingFont = Be_Vietnam_Pro({
+  variable: "--font-heading",
+  subsets: ["latin", "vietnamese"],
+  weight: ["500", "600", "700"],
+});
+
+const bodyFont = Inter({
+  variable: "--font-body",
+  subsets: ["latin", "vietnamese"],
 });
 
 const geistMono = Geist_Mono({
@@ -25,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${headingFont.variable} ${bodyFont.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
