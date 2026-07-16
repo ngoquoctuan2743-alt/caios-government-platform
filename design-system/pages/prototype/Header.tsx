@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Landmark, Menu, X, IdCard, Building2, ShieldCheck } from "lucide-react";
-import { Button } from "@ds/components";
+import { Landmark, Menu, X, IdCard, Building2, ShieldCheck, Bell, User, Settings, LogOut, ChevronDown } from "lucide-react";
+import { Button, Avatar } from "@ds/components";
 import type { Screen, Portal } from "./navigation";
 import { PORTAL_HOME } from "./navigation";
+import { t, type Locale } from "./i18n";
 
-const NAV_VI: { label: string; target: Screen }[] = [
-  { label: "Trang chủ", target: "landing" },
-  { label: "Hồ sơ của tôi", target: "citizen-dashboard" },
+const NAV: { key: "home" | "helpCenter"; target: Screen }[] = [
+  { key: "home", target: "landing" },
+  { key: "helpCenter", target: "help-center" },
 ];
 
 const PORTALS: { key: Portal; label: string; icon: typeof IdCard }[] = [
@@ -15,22 +16,30 @@ const PORTALS: { key: Portal; label: string; icon: typeof IdCard }[] = [
   { key: "officer", label: "Cán bộ", icon: ShieldCheck },
 ];
 
-/** Sticky, glass-effect header shared by every non-auth prototype screen. */
+/** Sticky, glass-effect header shared by every non-standalone prototype screen. */
 export function Header({
   active,
   portal,
   loggedIn,
+  locale,
+  unreadCount = 0,
   onNavigate,
   onSwitchPortal,
+  onToggleLocale,
+  onLogout,
 }: {
   active: Screen;
   portal: Portal;
   loggedIn: boolean;
+  locale: Locale;
+  unreadCount?: number;
   onNavigate: (screen: Screen) => void;
   onSwitchPortal: (portal: Portal) => void;
+  onToggleLocale: () => void;
+  onLogout: () => void;
 }) {
-  const [locale, setLocale] = useState<"vi" | "en">("vi");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--vdg-color-border)] bg-[var(--vdg-glass-bg)] backdrop-blur-[var(--vdg-glass-blur)]">
@@ -67,9 +76,9 @@ export function Header({
           </div>
         ) : (
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Điều hướng chính">
-            {NAV_VI.map(({ label, target }) => (
+            {NAV.map(({ key, target }) => (
               <button
-                key={label}
+                key={key}
                 type="button"
                 onClick={() => onNavigate(target)}
                 aria-current={active === target ? "page" : undefined}
@@ -78,7 +87,7 @@ export function Header({
                   (active === target ? "text-[var(--vdg-color-primary)]" : "text-[var(--vdg-color-text-secondary)]")
                 }
               >
-                {label}
+                {t(locale, key)}
               </button>
             ))}
           </nav>
@@ -87,20 +96,88 @@ export function Header({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setLocale((l) => (l === "vi" ? "en" : "vi"))}
+            onClick={onToggleLocale}
             className="hidden h-9 items-center gap-1.5 rounded-full border border-[var(--vdg-color-border)] px-3 text-[13px] font-medium sm:flex"
           >
             {locale === "vi" ? "🇻🇳 VI" : "🇺🇸 EN"}
           </button>
-          {loggedIn ? (
-            <Button variant="secondary" size="sm" onClick={() => onNavigate("landing")} className="hidden sm:inline-flex">
-              Đăng xuất
-            </Button>
-          ) : (
-            <Button variant="primary" size="sm" onClick={() => onNavigate("auth")} className="hidden sm:inline-flex">
-              Đăng nhập
-            </Button>
+
+          {loggedIn && (
+            <button
+              type="button"
+              onClick={() => onNavigate("notifications")}
+              aria-label="Thông báo"
+              className="relative flex size-9 items-center justify-center rounded-full border border-[var(--vdg-color-border)] text-[var(--vdg-color-text-secondary)] transition-colors hover:text-[var(--vdg-color-text)]"
+            >
+              <Bell className="size-4" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[var(--vdg-color-danger)]" />
+              )}
+            </button>
           )}
+
+          {loggedIn ? (
+            <div className="relative hidden sm:block">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-expanded={menuOpen}
+                className="flex items-center gap-1.5 rounded-full border border-[var(--vdg-color-border)] py-1 pr-2 pl-1"
+              >
+                <Avatar size="sm" fallback="A" />
+                <ChevronDown className="size-3.5 text-[var(--vdg-color-text-secondary)]" />
+              </button>
+              {menuOpen && (
+                <div
+                  className="vdg-in absolute top-11 right-0 w-48 overflow-hidden rounded-[var(--vdg-radius-md)] border border-[var(--vdg-color-border)] bg-[var(--vdg-color-surface)] py-1 shadow-[var(--vdg-shadow-lg)]"
+                  style={{ animationDuration: "0.15s" }}
+                  onMouseLeave={() => setMenuOpen(false)}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onNavigate("profile");
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm hover:bg-[var(--vdg-color-border)]/40"
+                  >
+                    <User className="size-4 text-[var(--vdg-color-text-secondary)]" /> {t(locale, "profile")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onNavigate("settings");
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm hover:bg-[var(--vdg-color-border)]/40"
+                  >
+                    <Settings className="size-4 text-[var(--vdg-color-text-secondary)]" /> {t(locale, "settings")}
+                  </button>
+                  <div className="my-1 border-t border-[var(--vdg-color-border)]" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onLogout();
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm text-[var(--vdg-color-danger)] hover:bg-[var(--vdg-color-danger)]/10"
+                  >
+                    <LogOut className="size-4" /> {t(locale, "logout")}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="hidden items-center gap-2 sm:flex">
+              <Button variant="ghost" size="sm" onClick={() => onNavigate("register-landing")}>
+                {t(locale, "register")}
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => onNavigate("auth")}>
+                {t(locale, "login")}
+              </Button>
+            </div>
+          )}
+
           <button
             type="button"
             className="flex size-9 items-center justify-center rounded-lg border border-[var(--vdg-color-border)] lg:hidden"
@@ -116,35 +193,81 @@ export function Header({
       {mobileOpen && (
         <nav className="flex flex-col gap-1 border-t border-[var(--vdg-color-border)] px-6 py-3 lg:hidden" aria-label="Điều hướng di động">
           {loggedIn
-            ? PORTALS.map(({ key, label }) => (
+            ? [
+                ...PORTALS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      onSwitchPortal(key);
+                      onNavigate(PORTAL_HOME[key]);
+                      setMobileOpen(false);
+                    }}
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--vdg-color-text)] hover:bg-[var(--vdg-color-border)]/50"
+                  >
+                    {label}
+                  </button>
+                )),
                 <button
-                  key={key}
+                  key="profile"
                   type="button"
                   onClick={() => {
-                    onSwitchPortal(key);
-                    onNavigate(PORTAL_HOME[key]);
+                    onNavigate("profile");
                     setMobileOpen(false);
                   }}
                   className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--vdg-color-text)] hover:bg-[var(--vdg-color-border)]/50"
                 >
-                  {label}
-                </button>
-              ))
-            : NAV_VI.map(({ label, target }) => (
+                  {t(locale, "profile")}
+                </button>,
                 <button
-                  key={label}
+                  key="settings"
                   type="button"
                   onClick={() => {
-                    onNavigate(target);
+                    onNavigate("settings");
                     setMobileOpen(false);
                   }}
                   className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--vdg-color-text)] hover:bg-[var(--vdg-color-border)]/50"
                 >
-                  {label}
-                </button>
-              ))}
-          <Button variant="primary" size="sm" onClick={() => onNavigate(loggedIn ? "landing" : "auth")} className="mt-2 w-full">
-            {loggedIn ? "Đăng xuất" : "Đăng nhập"}
+                  {t(locale, "settings")}
+                </button>,
+              ]
+            : [
+                ...NAV.map(({ key, target }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      onNavigate(target);
+                      setMobileOpen(false);
+                    }}
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--vdg-color-text)] hover:bg-[var(--vdg-color-border)]/50"
+                  >
+                    {t(locale, key)}
+                  </button>
+                )),
+                <button
+                  key="register"
+                  type="button"
+                  onClick={() => {
+                    onNavigate("register-landing");
+                    setMobileOpen(false);
+                  }}
+                  className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--vdg-color-text)] hover:bg-[var(--vdg-color-border)]/50"
+                >
+                  {t(locale, "register")}
+                </button>,
+              ]}
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              if (loggedIn) onLogout();
+              else onNavigate("auth");
+              setMobileOpen(false);
+            }}
+            className="mt-2 w-full"
+          >
+            {loggedIn ? t(locale, "logout") : t(locale, "login")}
           </Button>
         </nav>
       )}

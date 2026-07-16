@@ -9,9 +9,28 @@ const MESSAGES = [
   { role: "assistant" as const, text: "Bạn cần cấp đổi CCCD. Tôi đã chuẩn bị danh sách giấy tờ cần thiết — bạn muốn bắt đầu ngay không?" },
 ];
 
-/** Persistent floating assistant, bottom-right, per the brief's "AI Assistant" requirement. */
-export function AIAssistantPanel() {
-  const [open, setOpen] = useState(false);
+/**
+ * Persistent floating assistant, bottom-right, per the brief's "AI
+ * Assistant" requirement. Open state is self-managed by default, but
+ * accepts optional external control (`open`/`onOpenChange`) so other
+ * screens -- e.g. Help Center's "Chat với AI" button -- can open it
+ * programmatically without every screen needing to know about this
+ * component's internals.
+ */
+export function AIAssistantPanel({
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (v: boolean | ((prev: boolean) => boolean)) => {
+    const next = typeof v === "function" ? v(open) : v;
+    setInternalOpen(next);
+    onOpenChange?.(next);
+  };
 
   return (
     // z-index matches tokens/z-index.ts's `aiAssistant` value (700).

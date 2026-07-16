@@ -11,6 +11,9 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 // actual source, per the "replace preview.html" requirement.
 export default defineConfig({
   root: path.resolve(dirname, "preview-app"),
+  // Deployed at https://citizen.oakbeautyapp.com/ -- a subdomain dedicated
+  // to this demo, served from its document root. Default base ("/") is
+  // correct here; do not add a subpath prefix.
   plugins: [react()],
   resolve: {
     alias: {
