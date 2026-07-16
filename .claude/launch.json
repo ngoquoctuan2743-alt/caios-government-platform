@@ -6,12 +6,6 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
-    },
-    {
-      "name": "design-system",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "-w", "design-system"],
-      "port": 4300
     }
   ]
 }

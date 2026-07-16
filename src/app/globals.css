@@ -91,6 +91,21 @@
   --sidebar-accent-foreground: #111827;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: oklch(0.56 0.22 25 / 50%);
+
+  /* Aliases so the visual assets ported from design-system/assets (which
+     default their fill/stroke colors to these var names) render correctly
+     without modifying any of the 59 copied files. Where an equivalent
+     token already exists above, alias to it; the rest match
+     design-system/theme/light/theme.css's original hex values exactly. */
+  --vdg-color-primary: var(--primary);
+  --vdg-color-gold: var(--accent);
+  --vdg-color-danger: var(--destructive);
+  --vdg-color-surface: var(--card);
+  --vdg-color-text-secondary: var(--muted-foreground);
+  --vdg-color-blue: #2563eb;
+  --vdg-color-success: #22c55e;
+  --vdg-color-warning: #f59e0b;
+  --vdg-color-info: #3b82f6;
 }
 
 .dark {
@@ -126,6 +141,20 @@
   --sidebar-accent-foreground: #0f172a;
   --sidebar-border: rgba(255, 255, 255, 0.12);
   --sidebar-ring: oklch(0.6 0.22 25 / 50%);
+
+  /* Same alias set as :root -- see comment there. Semantic hues are
+     unchanged between light/dark per design-system/theme/dark/theme.css;
+     only surface and text-secondary differ, and those already track
+     --card / --muted-foreground correctly via the aliases above. */
+  --vdg-color-primary: var(--primary);
+  --vdg-color-gold: var(--accent);
+  --vdg-color-danger: var(--destructive);
+  --vdg-color-surface: var(--card);
+  --vdg-color-text-secondary: var(--muted-foreground);
+  --vdg-color-blue: #3b82f6;
+  --vdg-color-success: #22c55e;
+  --vdg-color-warning: #f59e0b;
+  --vdg-color-info: #3b82f6;
 }
 
 @layer base {
